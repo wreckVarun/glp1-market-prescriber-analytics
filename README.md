@@ -18,7 +18,40 @@ liraglutide, exenatide) built on public **CMS Medicare Part D Prescribers by Pro
 - **2025 forecast:** 27.5M claims base case (25.6M low, 29.5M high).
 - **Recommendation:** see the brand-team memo, [`docs/memo.md`](docs/memo.md).
 
-![Forecast](outputs/charts/06_forecast.png)
+## Charts
+| | |
+|---|---|
+| ![Claims by molecule](outputs/charts/01_claims_by_molecule.png) | ![Brand share](outputs/charts/02_brand_share.png) |
+| ![Top states](outputs/charts/03_top_states.png) | ![Top specialties](outputs/charts/04_top_specialties.png) |
+| ![Prescriber segments](outputs/charts/05_segments.png) | ![Forecast](outputs/charts/06_forecast.png) |
+
+## Data source
+[Medicare Part D Prescribers - by Provider and Drug](https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers/medicare-part-d-prescribers-by-provider-and-drug),
+published by the Centers for Medicare & Medicaid Services (CMS), data years 2020 to 2024.
+The download step finds each year's dataset through the CMS catalog (`data.cms.gov/data.json`) and keeps only GLP-1 rows.
+Raw and processed data are not committed (they are large); `python run_all.py` recreates them.
+
+## Project structure
+```
+glp1-market-prescriber-analytics/
+├── run_all.py              # runs the full pipeline in order
+├── requirements.txt
+├── src/
+│   ├── config.py           # molecules, brands, thresholds, paths
+│   ├── 00_make_sample_data.py
+│   ├── 01_download.py ... 07_tableau_extracts.py
+├── data/                   # created by the pipeline (git-ignored)
+│   ├── raw/
+│   └── processed/
+├── outputs/
+│   ├── tables/             # analysis tables (CSV)
+│   ├── charts/             # PNG charts
+│   └── tableau/            # dashboard-ready extracts
+└── docs/
+    ├── memo.md             # one-page brand-team recommendation
+    ├── methodology.md      # assumptions, choices and weaknesses
+    └── tableau_guide.md    # step-by-step dashboard build
+```
 
 ## Pipeline
 | Step | Script | Output |
@@ -60,3 +93,9 @@ Build guide: [`docs/tableau_guide.md`](docs/tableau_guide.md). Tableau Public li
 
 ## Tools
 Python (pandas, NumPy, Matplotlib), Tableau Public.
+
+## Author
+Varun Kumar ([@wreckVarun](https://github.com/wreckVarun))
+
+## License
+Code is released under the [MIT License](LICENSE). CMS data is public and subject to CMS terms of use.
