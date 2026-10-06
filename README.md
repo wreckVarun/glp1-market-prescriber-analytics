@@ -28,6 +28,8 @@ liraglutide, exenatide) built on public **CMS Medicare Part D Prescribers by Pro
 ## Data source
 [Medicare Part D Prescribers - by Provider and Drug](https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers/medicare-part-d-prescribers-by-provider-and-drug),
 published by the Centers for Medicare & Medicaid Services (CMS), data years 2020 to 2024.
+data.cms.gov is not reachable from some countries (for example India); if the link does not open, see the
+[archived copy of the dataset page](https://web.archive.org/web/20260716135114/https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers/medicare-part-d-prescribers-by-provider-and-drug).
 The download step finds each year's dataset through the CMS catalog (`data.cms.gov/data.json`) and keeps only GLP-1 rows.
 Raw and processed data are not committed (they are large); `python run_all.py` recreates them.
 
