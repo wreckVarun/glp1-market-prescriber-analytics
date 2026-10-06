@@ -54,6 +54,7 @@ Bottom-up by molecule, then summed.
   - Low drivers: tighter prior authorisation by Part D plans, budget pressure, share shift to new entrants or orals.
 - **Cost** = forecast claims x latest cost per claim (flat price). Medicare's negotiated price for semaglutide starts in 2027, so a 2027+ forecast must cut price.
 - **Cross-check:** a linear trend on the same years, reported next to the base case. If the two differ a lot, say why.
+- **Brand view:** each molecule's forecast is split across its brands by their latest-year share of that molecule (semaglutide: Ozempic 91%, Rybelsus 8%, Wegovy 1%). Brand forecasts add back exactly to the molecule totals. The assumption is that share within a molecule holds for one year; the real brand fight (Ozempic vs Mounjaro) is between molecules and is already in the molecule growth rates. Output: `forecast_by_brand.csv`.
 
 **Why not ARIMA or machine learning:** 4 to 6 annual data points cannot support them, and the client needs to understand and challenge the assumptions. Scenario ranges are more honest than a single precise number.
 

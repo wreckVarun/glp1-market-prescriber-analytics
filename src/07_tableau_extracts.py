@@ -53,9 +53,11 @@ def main():
         "drug_cost_latest": "Gross Drug Cost (latest yr)",
     }).drop(columns=["Prscrbr_First_Name", "Prscrbr_Last_Org_Name"]), "4_prescriber_segments.csv")
 
-    f = pd.read_csv(TABLES_DIR / "forecast_long.csv")
-    write(f.rename(columns={"Gnrc_Name": "Molecule", "scenario": "Scenario", "claims_value": "Claims"}),
-          "5_forecast.csv")
+    # Brand grain: summing brands gives the molecule forecast, so one file serves
+    # both a Brand and a Molecule filter.
+    f = pd.read_csv(TABLES_DIR / "forecast_brand_long.csv")
+    write(f.rename(columns={"Brnd_Name": "Brand", "Gnrc_Name": "Molecule", "scenario": "Scenario",
+                            "claims_value": "Claims"}), "5_forecast.csv")
 
 
 if __name__ == "__main__":

@@ -9,6 +9,7 @@ The Medicare GLP-1 market is still growing fast (+39% claims in 2024), and Mounj
 
 ## What the data shows
 - **Market size:** 19.6M GLP-1 Part D claims and $24.6B gross drug cost in 2024, 4.1x the 2020 level. The 2025 base case is 27.5M claims (range 25.6M to 29.5M) and about $35B gross.
+- **2025 by brand (base case):** Ozempic 15.1M claims (range 14.1M to 16.1M), Mounjaro 7.9M (7.4M to 8.3M), Trulicity 3.0M (2.6M to 3.4M). Mounjaro rises from 24% to about 29% of claims while Trulicity falls from 19% to about 11%, so Lilly's net share gain depends on catching Trulicity patients before they move to Ozempic.
 - **Share:** Ozempic 51%, Mounjaro 24% (up from 11% in 2023), Trulicity 19%. Lilly's total share fell from 45% to 43% because Trulicity claims dropped 21% (4.85M to 3.82M) while Mounjaro tripled.
 - **Concentration:** the top 20% of prescribers (40,232 writers with 138+ GLP-1 claims) write 59% of all claims. Mounjaro holds 27% of their volume.
 - **Who prescribes:** primary care drives the volume. Family practice, internal medicine, nurse practitioners and physician assistants write 82% of claims. Endocrinologists write only 13%, but at 424 claims each they write 4 to 5 times as much as a family practice prescriber or nurse practitioner.

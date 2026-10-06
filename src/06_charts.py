@@ -10,6 +10,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import matplotlib.ticker as mtick  # noqa: E402
+from matplotlib.patches import Patch  # noqa: E402
 import pandas as pd  # noqa: E402
 
 from config import CHARTS_DIR, TABLES_DIR  # noqa: E402
@@ -139,6 +140,32 @@ def forecast():
     save(fig, "06_forecast.png")
 
 
+def forecast_by_brand(n=6):
+    b = pd.read_csv(TABLES_DIR / "forecast_by_brand.csv").nlargest(n, "claims_base").iloc[::-1]
+    nxt = int(b["forecast_year"].iloc[0])
+    y = range(len(b))
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    ax.barh([i + 0.2 for i in y], b["claims_latest"], height=0.4, color="#d3d1c7", label=f"{nxt - 1} actual")
+    colors = [MOLECULE_COLORS.get(m, MUTED) for m in b["Gnrc_Name"]]
+    ax.barh([i - 0.2 for i in y], b["claims_base"], height=0.4, color=colors, label=f"{nxt} base case")
+    ax.errorbar(b["claims_base"], [i - 0.2 for i in y],
+                xerr=[b["claims_base"] - b["claims_low"], b["claims_high"] - b["claims_base"]],
+                fmt="none", ecolor=MUTED, elinewidth=1, capsize=3)
+    for i, (base, high) in enumerate(zip(b["claims_base"], b["claims_high"])):
+        ax.annotate(f" {_fmt(base)}", (high, i - 0.2), va="center", fontsize=9, color=MUTED)
+    ax.set_yticks(list(y))
+    ax.set_yticklabels(b["Brnd_Name"])
+    ax.xaxis.set_major_formatter(millions)
+    ax.grid(axis="y", visible=False)
+    ax.set_title(f"{nxt} claims forecast by brand (base case, low-high range)", loc="left", fontweight="bold")
+    # Base bars use molecule colours, so build the legend by hand
+    handles = [Patch(color="#d3d1c7", label=f"{nxt - 1} actual"),
+               Patch(color=MUTED, label=f"{nxt} base case (colour = molecule)")]
+    ax.legend(handles=handles, frameon=False, loc="lower right")
+    ax.margins(x=0.12)
+    save(fig, "07_forecast_by_brand.png")
+
+
 def main():
     CHARTS_DIR.mkdir(parents=True, exist_ok=True)
     claims_by_molecule()
@@ -148,6 +175,7 @@ def main():
             "04_top_specialties.png", n=10)
     segments()
     forecast()
+    forecast_by_brand()
 
 
 if __name__ == "__main__":

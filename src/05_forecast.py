@@ -21,6 +21,11 @@ Method (bottom-up by molecule, then summed):
    IRA negotiated prices, which start for semaglutide in 2027).
 6. Cross-check: a straight-line (linear trend) fit on the same years. If CAGR and
    linear differ a lot, growth is accelerating or decelerating; mention it.
+7. Brand view: each molecule's forecast is split across its brands by their
+   latest-year share of that molecule (semaglutide -> Ozempic / Rybelsus / Wegovy).
+   ASSUMPTION: share within a molecule holds for one year. Brands compete mainly
+   across molecules (Ozempic vs Mounjaro), and that shift is already in the
+   molecule growth rates.
 
 Note on timing: the "next year" is the data year after the latest CMS year. Because
 CMS lags ~2 years, that year may already be over in real life; it is still the
@@ -113,10 +118,41 @@ def main():
     pd.concat([hist[["Gnrc_Name", "Year", "scenario", "claims_value"]], fc], ignore_index=True) \
       .to_csv(TABLES_DIR / "forecast_long.csv", index=False)
 
+    # Brand view: split each molecule's scenarios by latest-year brand share
+    by_brand = df.groupby(["Brnd_Name", "Gnrc_Name", "Year"]).agg(
+        claims=("Tot_Clms", "sum"), cost=("Tot_Drug_Cst", "sum")).reset_index()
+    b = by_brand[by_brand["Year"] == latest].copy()
+    b["share_of_molecule"] = b["claims"] / b.groupby("Gnrc_Name")["claims"].transform("sum")
+    b["cost_per_claim"] = b["cost"] / b["claims"]
+    b = b.merge(f[["Gnrc_Name", "growth_method", "claims_low", "claims_base", "claims_high"]],
+                on="Gnrc_Name", suffixes=("", "_molecule"))
+    for name in scen:
+        b[f"claims_{name}"] = b[f"claims_{name}"] * b["share_of_molecule"]
+        b[f"cost_{name}"] = b[f"claims_{name}"] * b["cost_per_claim"]
+        b[f"growth_{name}"] = b[f"claims_{name}"] / b["claims"] - 1
+    b["forecast_year"] = latest + 1
+    b = b.rename(columns={"claims": "claims_latest"}).drop(columns=["Year", "cost"]) \
+         .sort_values("claims_base", ascending=False)
+    b.to_csv(TABLES_DIR / "forecast_by_brand.csv", index=False)
+
+    # Brand long format (history + forecast) for Tableau
+    bh = by_brand.rename(columns={"claims": "claims_value"})
+    bh["scenario"] = "Actual"
+    bf = b.melt(id_vars=["Brnd_Name", "Gnrc_Name", "forecast_year"],
+                value_vars=["claims_low", "claims_base", "claims_high"],
+                var_name="scenario", value_name="claims_value")
+    bf["scenario"] = bf["scenario"].str.replace("claims_", "").str.title()
+    bf = bf.rename(columns={"forecast_year": "Year"})
+    pd.concat([bh[["Brnd_Name", "Gnrc_Name", "Year", "scenario", "claims_value"]], bf], ignore_index=True) \
+      .to_csv(TABLES_DIR / "forecast_brand_long.csv", index=False)
+
     show = f[["Gnrc_Name", "years_of_data", "growth_method", "claims_latest",
               "growth_low", "growth_base", "growth_high", "claims_base", "linear_trend_next"]]
     with pd.option_context("display.float_format", "{:,.3f}".format, "display.width", 200):
         print(show.to_string(index=False))
+        print("\nBy brand:")
+        print(b[["Brnd_Name", "Gnrc_Name", "share_of_molecule", "claims_latest",
+                 "claims_low", "claims_base", "claims_high"]].to_string(index=False))
 
 
 if __name__ == "__main__":

@@ -8,14 +8,14 @@ liraglutide, exenatide) built on public **CMS Medicare Part D Prescribers by Pro
 ## What it answers
 1. **Market sizing:** how big is the Part D GLP-1 market, which brands lead, and which states and specialties hold the volume?
 2. **Prescriber segmentation:** which prescribers are high-value, emerging or low-adopters?
-3. **Forecast:** how many claims next year under base, high and low scenarios?
+3. **Forecast:** how many claims next year, by molecule and by brand, under base, high and low scenarios?
 4. **Recommendation:** a one-page memo for the brand team (`docs/memo.md`) and a Tableau Public dashboard.
 
 ## Key results (CMS data years 2020 to 2024)
 - **Market:** 19.6M GLP-1 Part D claims and $24.6B gross drug cost in 2024 (+39% claims YoY, 4.1x 2020).
 - **Brands:** Ozempic 51% of claims, Mounjaro 24% (+209% YoY), Trulicity 19% (-21%).
 - **Concentration:** the top 20% of prescribers write 59% of claims; primary care (FP, IM, NP, PA) writes 82%.
-- **2025 forecast:** 27.5M claims base case (25.6M low, 29.5M high).
+- **2025 forecast:** 27.5M claims base case (25.6M low, 29.5M high). By brand: Ozempic 15.1M, Mounjaro 7.9M (24% to 29% of claims), Trulicity 3.0M.
 - **Recommendation:** see the brand-team memo, [`docs/memo.md`](docs/memo.md).
 
 ## Charts
@@ -24,6 +24,7 @@ liraglutide, exenatide) built on public **CMS Medicare Part D Prescribers by Pro
 | ![Claims by molecule](outputs/charts/01_claims_by_molecule.png) | ![Brand share](outputs/charts/02_brand_share.png) |
 | ![Top states](outputs/charts/03_top_states.png) | ![Top specialties](outputs/charts/04_top_specialties.png) |
 | ![Prescriber segments](outputs/charts/05_segments.png) | ![Forecast](outputs/charts/06_forecast.png) |
+| ![Forecast by brand](outputs/charts/07_forecast_by_brand.png) | |
 
 ## Data source
 [Medicare Part D Prescribers - by Provider and Drug](https://data.cms.gov/provider-summary-by-type-of-service/medicare-part-d-prescribers/medicare-part-d-prescribers-by-provider-and-drug),
@@ -66,7 +67,7 @@ glp1-market-prescriber-analytics/
 | 2 | `src/02_clean.py` | one cleaned prescriber x brand x year panel |
 | 3 | `src/03_market_sizing.py` | brand, molecule, state, specialty tables |
 | 4 | `src/04_segmentation.py` | prescriber segments + segment summaries |
-| 5 | `src/05_forecast.py` | next-year base / high / low forecast |
+| 5 | `src/05_forecast.py` | next-year base / high / low forecast, by molecule and by brand |
 | 6 | `src/06_charts.py` | Matplotlib charts (`outputs/charts/`) |
 | 7 | `src/07_tableau_extracts.py` | dashboard-ready CSVs (`outputs/tableau/`) |
 
@@ -83,7 +84,7 @@ python run_all.py --skip-download   # reuse CSVs already in data/raw/
 ## Methods (deliberately simple and explainable)
 - **Sizing:** `groupby` sums of claims and gross drug cost.
 - **Segmentation:** percentile tiers. High-value = top 20% by latest-year claims; Emerging = mid-volume (P50 to P80) and growing faster than the market, or new; Low-adopter = rest.
-- **Forecast:** base case = the lower of 3-year CAGR and latest YoY per molecule (launch brand: repeat last absolute gain), +/- 10 points of growth for high/low, with a linear-trend cross-check.
+- **Forecast:** base case = the lower of 3-year CAGR and latest YoY per molecule (launch brand: repeat last absolute gain), +/- 10 points of growth for high/low, with a linear-trend cross-check. Brand forecast = molecule forecast x the brand's latest-year share of that molecule.
 
 Full reasoning, assumptions and weaknesses: [`docs/methodology.md`](docs/methodology.md).
 

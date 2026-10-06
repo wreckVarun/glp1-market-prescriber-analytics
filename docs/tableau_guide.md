@@ -9,7 +9,7 @@ All files are in `outputs/tableau/`.
 | `2_market_by_state.csv` | state (latest year) | US map |
 | `3_market_by_specialty.csv` | specialty (latest year) | specialty bar |
 | `4_prescriber_segments.csv` | prescriber (NPI) | segment view, target list |
-| `5_forecast.csv` | molecule x year x scenario | forecast chart |
+| `5_forecast.csv` | brand x year x scenario | forecast chart (by brand or molecule) |
 
 ## 1. Connect the data (5 min)
 1. Open Tableau Public. Under **Connect > To a File > Text file**, choose `1_market_by_brand_year.csv`.
@@ -62,7 +62,8 @@ Same source. This is what a sales rep would actually use.
 ## 8. Sheet "Forecast" (5 min)
 Source: `5_forecast`.
 1. `Year` to Columns (discrete), `Claims` to Rows (SUM), `Scenario` to Color.
-2. Drag `Molecule` to Filters and Show Filter, so the viewer can pick one molecule or all.
+2. Drag `Brand` and `Molecule` to Filters and Show Filter on both, so the viewer can pick one brand, one molecule or all.
+   Brands add up exactly to their molecule, so SUM(Claims) is correct at any level.
 3. Edit colors: Actual = dark grey, Base = blue, High and Low = light blue. On the Marks card, choose Line.
    Optional: Low and High as dashed lines (Marks > Path > dashed).
 
