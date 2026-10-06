@@ -6,8 +6,10 @@ Cleaning decisions (each one is an assumption you should be able to defend):
 2. Tot_Benes is blank when a row has fewer than 11 beneficiaries (CMS privacy
    suppression). We keep it as NaN, never fill with 0, and treat any beneficiary
    total as a LOWER BOUND.
-3. Brand names are standardised to title case ("OZEMPIC" -> "Ozempic") so the
-   same brand is not split across spellings.
+3. Brand names are standardised to title case ("OZEMPIC" -> "Ozempic"), and
+   pack-size / device variants are merged ("Victoza 3-Pak" -> "Victoza",
+   "Bydureon Pen" -> "Bydureon") so one brand is not split across rows.
+   "Exenatide Microspheres" (Bydureon's CMS generic name) -> molecule "Exenatide".
 4. Specialty (Prscrbr_Type) is trimmed; blank -> "Unknown".
 5. Each NPI gets ONE state and ONE specialty: the value from their most recent
    year. Prescribers occasionally move or re-classify, and we want a stable label
@@ -17,7 +19,7 @@ Output: data/processed/glp1_panel.csv  (one row = prescriber x brand x year)
 """
 import pandas as pd
 
-from config import BRAND_MANUFACTURER, PROCESSED_DIR, RAW_DIR
+from config import BRAND_MANUFACTURER, BRAND_STANDARD, MOLECULE_STANDARD, PROCESSED_DIR, RAW_DIR
 
 NUMERIC = ["Tot_Clms", "Tot_30day_Fills", "Tot_Day_Suply", "Tot_Drug_Cst", "Tot_Benes"]
 
@@ -33,7 +35,8 @@ def main():
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
     df["Brnd_Name"] = df["Brnd_Name"].str.strip().str.title()
-    df["Gnrc_Name"] = df["Gnrc_Name"].str.strip().str.title()
+    df["Brnd_Name"] = df["Brnd_Name"].replace(BRAND_STANDARD)
+    df["Gnrc_Name"] = df["Gnrc_Name"].str.strip().str.title().replace(MOLECULE_STANDARD)
     df["Prscrbr_Type"] = df["Prscrbr_Type"].fillna("Unknown").str.strip()
     df["Manufacturer"] = df["Brnd_Name"].map(BRAND_MANUFACTURER).fillna("Other")
 

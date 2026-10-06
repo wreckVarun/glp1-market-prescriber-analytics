@@ -6,10 +6,15 @@ Unit: one prescriber (NPI), all GLP-1 brands combined, latest year vs prior year
 Rules (percentile tiers, no clustering, so every label is explainable in one line):
 - High-value  : latest-year GLP-1 claims in the top 20% of prescribers (>= P80).
                 These write most of the volume -> protect and grow share.
-- Emerging    : not high-value, but claims grew >= 25% YoY, OR the prescriber is
-                new in the latest year. Rising writers -> where call effort can
-                still change habits.
-- Low-adopter : everyone else (small and flat/declining).
+- Emerging    : not high-value, already at or above median volume (>= P50), AND
+                growing faster than the total GLP-1 market (or new this year).
+                Rising, mid-volume writers -> where call effort can still
+                change habits AND there is enough volume to matter.
+- Low-adopter : everyone else (small, or growing no faster than the market).
+
+Why the growth bar is the market's own growth, not a fixed number: in a market
+growing ~40% a year, a fixed +25% bar labels the majority of prescribers
+"emerging", which no sales force can act on.
 
 Caveat to state in interviews: "new" really means "crossed the 11-claim
 suppression threshold". A prescriber with 0-10 claims last year is invisible in
@@ -23,7 +28,7 @@ Outputs:
 import numpy as np
 import pandas as pd
 
-from config import EMERGING_MIN_GROWTH, HIGH_VALUE_PERCENTILE, PROCESSED_DIR, TABLES_DIR
+from config import EMERGING_MIN_PERCENTILE, HIGH_VALUE_PERCENTILE, PROCESSED_DIR, TABLES_DIR
 
 
 def main():
@@ -59,9 +64,14 @@ def main():
     # --- Segment rules -----------------------------------------------------
     cutoff = p["claims_latest"].quantile(HIGH_VALUE_PERCENTILE)
     high = p["claims_latest"] >= cutoff
-    emerging = ~high & ((p["yoy_growth"] >= EMERGING_MIN_GROWTH) | p["is_new"])
+    mid_floor = p["claims_latest"].quantile(EMERGING_MIN_PERCENTILE)
+    market_growth = df.loc[df["Year"] == latest, "Tot_Clms"].sum() / df.loc[df["Year"] == prior, "Tot_Clms"].sum() - 1
+    emerging = (~high & (p["claims_latest"] >= mid_floor)
+                & ((p["yoy_growth"] > market_growth) | p["is_new"]))
     p["segment"] = np.select([high, emerging], ["High-value", "Emerging"], default="Low-adopter")
     print(f"High-value cutoff (P{HIGH_VALUE_PERCENTILE * 100:.0f}): {cutoff:,.0f} GLP-1 claims in {latest}")
+    print(f"Emerging rule: >= {mid_floor:,.0f} claims (P{EMERGING_MIN_PERCENTILE * 100:.0f}) "
+          f"and YoY growth above the market's {market_growth:.1%}")
     print(f"Lapsed prescribers (wrote in {prior}, none visible in {latest}): {lapsed:,}")
 
     TABLES_DIR.mkdir(parents=True, exist_ok=True)

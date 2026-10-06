@@ -18,6 +18,7 @@ Usage:
     python src/01_download.py --years 2021 2022 2023
 """
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import json
 import re
 import time
@@ -48,21 +49,30 @@ def get_json(url, retries=4):
 
 
 def find_yearly_api_urls():
-    """Return {year: api_url} for every year of the dataset listed in the CMS catalog."""
+    """Return {year: api_url} for every year of the dataset listed in the CMS catalog.
+
+    CMS lists each data year as its own catalog entry, titled like
+    "Medicare Part D Prescribers - by Provider and Drug : 2023-12-31".
+    The year is read from the distribution's temporal startDate.
+    """
     catalog = get_json(CATALOG_URL)
     urls = {}
     for ds in catalog["dataset"]:
-        if ds.get("title", "").strip() != DATASET_TITLE:
+        if not ds.get("title", "").startswith(DATASET_TITLE + " :"):
             continue
         for dist in ds.get("distribution", []):
-            url = dist.get("accessURL", "")
+            url = dist.get("accessURL") or ""
             if dist.get("format") != "API" or "/data-api/v1/dataset/" not in url:
                 continue
-            # The year lives in "temporal" (e.g. "2023-01-01/2023-12-31") or the title.
-            text = f"{dist.get('temporal', '')} {dist.get('title', '')}"
+            temporal = dist.get("temporal")
+            if isinstance(temporal, list) and temporal:
+                text = temporal[0].get("startDate", "")
+            else:
+                text = f"{temporal or ''} {dist.get('title', '')}"
             match = re.search(r"(20\d\d)", text)
             if match:
-                urls[int(match.group(1))] = url.rstrip("/")
+                # accessURL already ends in /data; store the dataset root
+                urls[int(match.group(1))] = re.sub(r"/data/?$", "", url)
     if not urls:
         raise RuntimeError("Could not find the dataset in the CMS catalog; check DATASET_TITLE.")
     return dict(sorted(urls.items()))
@@ -93,7 +103,7 @@ def main():
 
     RAW_DIR.mkdir(parents=True, exist_ok=True)
     available = find_yearly_api_urls()
-    print(f"CMS lists data years: {list(available)}")
+    print(f"CMS lists data years: {list(available)}", flush=True)
     years = args.years or list(available)[-args.n_latest:]
 
     for year in years:
@@ -101,16 +111,17 @@ def main():
         if out.exists():
             print(f"{year}: already downloaded -> {out.name}")
             continue
-        frames = []
-        for generic in GLP1_GENERICS:
-            df = download_generic(available[year], generic)
-            print(f"{year} {generic:<12} {len(df):>8,} rows")
-            frames.append(df)
+        # One request stream per molecule, run in parallel (6 small streams is
+        # polite to the API and much faster than going one molecule at a time).
+        with ThreadPoolExecutor(max_workers=len(GLP1_GENERICS)) as pool:
+            frames = list(pool.map(lambda g: download_generic(available[year], g), GLP1_GENERICS))
+        for generic, df in zip(GLP1_GENERICS, frames):
+            print(f"{year} {generic:<22} {len(df):>8,} rows", flush=True)
         data = pd.concat(frames, ignore_index=True)
         data = data[[c for c in KEEP_COLS if c in data.columns]]
         data.insert(0, "Year", year)
         data.to_csv(out, index=False)
-        print(f"{year}: saved {len(data):,} rows -> {out.name}")
+        print(f"{year}: saved {len(data):,} rows -> {out.name}", flush=True)
 
 
 if __name__ == "__main__":

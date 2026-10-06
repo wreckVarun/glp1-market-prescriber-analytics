@@ -2,12 +2,17 @@
 STEP 05 - Next-year demand forecast with base / high / low scenarios.
 
 Method (bottom-up by molecule, then summed):
-1. For each molecule, base growth = CAGR of claims over the last 3 YoY steps
-       CAGR = (claims_latest / claims_3_years_earlier) ** (1/3) - 1
-   CAGR smooths one-off jumps (e.g. supply shortages) better than a single YoY.
+1. For each molecule, compute two growth rates:
+       CAGR       = (claims_latest / claims_3_years_earlier) ** (1/3) - 1
+       latest YoY = claims_latest / claims_prior_year - 1
+   Base growth = the LOWER of the two. CAGR smooths one-off jumps, but when growth
+   is slowing (semaglutide: 3-yr CAGR 78% vs latest YoY 52%) or turning negative
+   (Trulicity: CAGR +5% vs latest -21%), the CAGR overstates next year. Taking the
+   lower rate is the conservative choice a brand team would ask for.
 2. Short-history rule: if a molecule has fewer than 4 years of data (tirzepatide /
-   Mounjaro launched mid-2022), its early growth is launch ramp, not a trend.
-   Base growth = latest YoY x 0.5 (damping). This is a judgement call; say so.
+   Mounjaro launched mid-2022), % growth is launch ramp (+208% in 2024) and cannot
+   repeat. Instead, next year adds the SAME NUMBER of claims it added last year
+   (a straight-line ramp), so % growth falls naturally as the base grows.
 3. Scenarios = base growth +/- 10 percentage points.
    High: shortages fully resolved, more cardiometabolic coverage (e.g. Wegovy CV indication).
    Low : prior-auth tightening, payer pushback, share loss to oral/new entrants.
@@ -24,7 +29,7 @@ right test of the method, and the logic rolls forward when new data drops.
 import numpy as np
 import pandas as pd
 
-from config import CAGR_LOOKBACK_YEARS, PROCESSED_DIR, SCENARIO_SPREAD_PP, SHORT_HISTORY_DAMPING, TABLES_DIR
+from config import CAGR_LOOKBACK_YEARS, PROCESSED_DIR, SCENARIO_SPREAD_PP, TABLES_DIR
 
 
 def molecule_forecast(series):
@@ -35,11 +40,13 @@ def molecule_forecast(series):
 
     if n_steps >= CAGR_LOOKBACK_YEARS:
         start = series.iloc[-1 - CAGR_LOOKBACK_YEARS]
-        base_g = (latest / start) ** (1 / CAGR_LOOKBACK_YEARS) - 1
-        method = f"{CAGR_LOOKBACK_YEARS}-yr CAGR"
+        cagr = (latest / start) ** (1 / CAGR_LOOKBACK_YEARS) - 1
+        yoy = latest / series.iloc[-2] - 1
+        base_g = min(cagr, yoy)
+        method = f"{CAGR_LOOKBACK_YEARS}-yr CAGR" if cagr <= yoy else "latest YoY (slowing)"
     elif n_steps >= 1:
-        base_g = (latest / series.iloc[-2] - 1) * SHORT_HISTORY_DAMPING
-        method = f"latest YoY x {SHORT_HISTORY_DAMPING} (short history)"
+        base_g = (latest - series.iloc[-2]) / latest  # repeat last year's absolute gain
+        method = "repeat last absolute gain (launch brand)"
     else:
         base_g, method = 0.0, "single year: held flat"
 
@@ -87,6 +94,7 @@ def main():
     total = f[[c for c in f.columns if c.startswith(("claims_", "cost_", "linear_"))]].sum()
     total["Gnrc_Name"] = "TOTAL GLP-1"
     total["latest_year"], total["forecast_year"] = latest, latest + 1
+    total["cost_per_claim"] = (f["claims_latest"] * f["cost_per_claim"]).sum() / f["claims_latest"].sum()
     for name in scen:
         total[f"growth_{name}"] = total[f"claims_{name}"] / total["claims_latest"] - 1
     f = pd.concat([f, total.to_frame().T], ignore_index=True)

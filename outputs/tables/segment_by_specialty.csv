@@ -1,0 +1,105 @@
+Prscrbr_Type,prescribers_emerging,prescribers_high_value,prescribers_low_adopter,claims_emerging,claims_high_value,claims_low_adopter,total_claims
+Family Practice,13470,13107,37461,1205479,3012230,1570544,5788253
+Internal Medicine,8808,11628,24546,794489,3030271,1060584,4885344
+Nurse Practitioner,9517,6815,35453,824437,1964492,1255446,4044375
+Endocrinology,345,4518,1018,33383,2403921,57954,2495258
+Physician Assistant,3358,2345,11815,287839,649948,435911,1373698
+General Practice,387,396,1602,34312,99203,56478,189993
+Cardiology,327,284,1698,27711,87498,50059,165268
+Pharmacist,212,290,520,19038,77709,19544,116291
+Nephrology,146,143,858,12869,44267,26423,83559
+Geriatric Medicine,115,102,578,9966,23473,21207,54646
+Emergency Medicine,91,115,439,7798,29181,15286,52265
+Hospitalist,100,94,707,8634,22519,19514,50667
+Student in an Organized Health Care Education/Training Program,48,11,1927,3687,2876,35392,41955
+Pediatric Medicine,75,59,303,6516,14232,11171,31919
+Interventional Cardiology,57,39,302,4977,11370,7852,24199
+Certified Clinical Nurse Specialist,19,43,67,1639,17780,2427,21846
+General Surgery,34,25,291,2751,6146,10479,19376
+Infectious Disease,39,20,297,3191,4366,8647,16204
+Pulmonary Disease,37,22,180,3288,5374,5519,14181
+Osteopathic Manipulative Medicine,23,31,107,2174,7435,4447,14056
+Gastroenterology,25,16,242,2071,4374,6481,12926
+Obstetrics & Gynecology,16,18,258,1346,3802,6176,11324
+Advanced Heart Failure and Transplant Cardiology,21,11,126,1846,2496,3101,7443
+Preventive Medicine,10,11,62,905,3711,2266,6882
+Rheumatology,11,9,71,873,2796,1903,5572
+Family Medicine,12,4,107,1049,862,3068,4979
+Psychiatry,9,1,122,778,1162,2635,4575
+Registered Nurse,11,4,49,907,1643,1559,4109
+Physical Medicine and Rehabilitation,12,6,57,1000,1616,1422,4038
+Specialist,3,7,53,247,1958,1800,4005
+Neurology,9,7,56,687,1736,1007,3430
+Hospice and Palliative Care,8,6,38,655,1217,1401,3273
+Sports Medicine,12,4,43,1106,736,1260,3102
+Hematology-Oncology,5,3,55,499,701,1433,2633
+Clinical Cardiac Electrophysiology,3,4,57,225,1036,1154,2415
+Critical Care (Intensivists),5,3,32,526,781,856,2163
+Anesthesiology,5,2,52,449,408,1206,2063
+Addiction Medicine,1,3,21,91,1010,797,1898
+Psychiatry & Neurology,1,1,63,62,141,1430,1633
+Nuclear Medicine,1,1,4,69,1423,115,1607
+Allergy/ Immunology,6,1,28,478,170,774,1422
+Interventional Pain Management,4,1,19,331,173,800,1304
+Sleep Medicine,3,2,15,258,354,570,1182
+Naturopath,0,1,44,0,269,858,1127
+Legal Medicine,1,2,5,67,668,202,937
+Pain Management,0,2,24,0,335,565,900
+Radiation Oncology,1,1,6,91,664,117,872
+Urology,3,1,22,232,164,423,819
+Certified Nurse Midwife,1,1,20,107,251,401,759
+Diagnostic Radiology,0,1,24,0,290,436,726
+Dermatology,2,1,22,170,215,318,703
+Undefined Physician type,1,2,7,60,416,192,668
+Otolaryngology,2,1,13,217,212,190,619
+Orthopedic Surgery,1,0,23,118,0,450,568
+Medical Oncology,1,0,17,86,0,471,557
+Clinic/Center,2,0,10,126,0,227,353
+Ophthalmology,0,0,20,0,0,337,337
+Vascular Surgery,0,1,8,0,192,142,334
+Pharmacy,1,1,0,83,219,0,302
+Clinic or Group Practice,0,1,1,0,214,68,282
+Neurosurgery,0,0,8,0,0,271,271
+Orthopaedic Surgery,0,1,6,0,179,79,258
+Licensed Practical Nurse,0,1,0,0,250,0,250
+Plastic and Reconstructive Surgery,1,0,8,97,0,144,241
+Geriatric Psychiatry,0,1,0,0,230,0,230
+Cardiac Surgery,0,1,2,0,151,48,199
+Integrative Medicine,1,0,2,122,0,41,163
+Thoracic Surgery,1,0,5,66,0,75,141
+Dentist,0,0,9,0,0,127,127
+Neuropsychiatry,0,0,5,0,0,127,127
+Case Manager/Care Coordinator,1,0,0,113,0,0,113
+Podiatry,0,0,7,0,0,108,108
+Pathology,0,0,3,0,0,82,82
+Medical Genetics and Genomics,1,0,0,82,0,0,82
+Chiropractic,0,0,5,0,0,77,77
+Thoracic Surgery (Cardiothoracic Vascular Surgery),0,0,4,0,0,76,76
+"Neuromusculoskeletal Medicine, Sports Medicine",0,0,2,0,0,50,50
+Interventional Radiology,0,0,2,0,0,48,48
+Colorectal Surgery (Proctology),0,0,3,0,0,47,47
+Midwife,0,0,1,0,0,45,45
+Neurological Surgery,0,0,2,0,0,45,45
+Optometry,0,0,2,0,0,39,39
+Peripheral Vascular Disease,0,0,2,0,0,38,38
+Behavior Analyst,0,0,1,0,0,34,34
+Unknown,0,0,1,0,0,34,34
+Plastic Surgery,0,0,2,0,0,34,34
+Acupuncturist,0,0,2,0,0,32,32
+Program of All-Inclusive Care for the Elderly (PACE) Provider Organization,0,0,1,0,0,31,31
+Undersea and Hyperbaric Medicine,0,0,1,0,0,27,27
+Personal Emergency Response Attendant,0,0,2,0,0,27,27
+Hematology,0,0,2,0,0,24,24
+Colon & Rectal Surgery,0,0,1,0,0,23,23
+Military Health Care Provider,0,0,1,0,0,22,22
+Surgery,0,0,1,0,0,17,17
+"Psychologist, Clinical",0,0,1,0,0,17,17
+Health Maintenance Organization,0,0,1,0,0,16,16
+Licensed Clinical Social Worker,0,0,1,0,0,14,14
+Certified Registered Nurse Anesthetist (CRNA),0,0,1,0,0,14,14
+Hospital,0,0,1,0,0,13,13
+General Acute Care Hospital,0,0,1,0,0,13,13
+Adult Congenital Heart Disease,0,0,1,0,0,12,12
+Contractor,0,0,1,0,0,12,12
+Homeopath,0,0,1,0,0,11,11
+Specialist/Technologist,0,0,1,0,0,11,11
