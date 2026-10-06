@@ -33,6 +33,10 @@ data.cms.gov is not reachable from some countries (for example India); if the li
 The download step finds each year's dataset through the CMS catalog (`data.cms.gov/data.json`) and keeps only GLP-1 rows.
 Raw and processed data are not committed (they are large); `python run_all.py` recreates them.
 
+**Can't reach data.cms.gov?** A copy of the exact GLP-1 rows used here (2020 to 2024, 40 MB zip) is attached to the
+[`data-v1` release](https://github.com/wreckVarun/glp1-market-prescriber-analytics/releases/tag/data-v1).
+`python run_all.py --mirror` downloads it for you, and the download step also switches to it automatically if CMS is unreachable.
+
 ## Project structure
 ```
 glp1-market-prescriber-analytics/
@@ -72,7 +76,8 @@ All thresholds and assumptions live in `src/config.py`.
 pip install -r requirements.txt
 python run_all.py            # downloads real CMS data, then runs every step
 python run_all.py --sample   # synthetic data with the CMS layout, for testing without internet
-python run_all.py --skip-download   # reuse CSVs already in data/raw/ (data.cms.gov blocks some non-US networks)
+python run_all.py --mirror   # same real data from this repo's GitHub release (use where data.cms.gov is blocked, e.g. India)
+python run_all.py --skip-download   # reuse CSVs already in data/raw/
 ```
 
 ## Methods (deliberately simple and explainable)

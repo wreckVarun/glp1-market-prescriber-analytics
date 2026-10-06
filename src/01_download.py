@@ -13,17 +13,25 @@ WHAT ONE ROW MEANS
 - One prescriber (NPI) x one drug (brand + generic) x one year.
 - Tot_Clms = number of Part D claims (original fills + refills) that prescriber wrote.
 
+MIRROR
+- data.cms.gov is blocked from some countries (e.g. India). The same GLP-1 rows
+  for 2020-2024 are kept as a zip on this repo's GitHub release (data-v1).
+  If CMS cannot be reached, the script falls back to that copy automatically.
+
 Usage:
     python src/01_download.py              # latest 5 years
     python src/01_download.py --years 2021 2022 2023
+    python src/01_download.py --mirror     # skip CMS, use the GitHub release copy
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor
+import io
 import json
 import re
 import time
 import urllib.parse
 import urllib.request
+import zipfile
 
 import pandas as pd
 
@@ -33,6 +41,8 @@ CATALOG_URL = "https://data.cms.gov/data.json"
 DATASET_TITLE = "Medicare Part D Prescribers - by Provider and Drug"
 PAGE_SIZE = 5000  # CMS API maximum rows per request
 USER_AGENT = "Mozilla/5.0 (glp1-market-prescriber-analytics)"
+MIRROR_URL = ("https://github.com/wreckVarun/glp1-market-prescriber-analytics/"
+              "releases/download/data-v1/glp1_partd_raw_2020_2024.zip")
 
 
 def get_json(url, retries=4):
@@ -99,14 +109,38 @@ def download_generic(api_url, generic):
     return pd.DataFrame(rows)
 
 
+def download_mirror():
+    """Fetch the 2020-2024 GLP-1 CSVs from the GitHub release and unzip them into data/raw/."""
+    print(f"Downloading mirror copy: {MIRROR_URL}", flush=True)
+    req = urllib.request.Request(MIRROR_URL, headers={"User-Agent": USER_AGENT})
+    with urllib.request.urlopen(req, timeout=300) as resp:
+        archive = zipfile.ZipFile(io.BytesIO(resp.read()))
+    for name in archive.namelist():
+        out = RAW_DIR / name
+        if out.exists():
+            print(f"{name}: already downloaded")
+            continue
+        out.write_bytes(archive.read(name))
+        print(f"saved {name}", flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--years", type=int, nargs="*", help="data years to pull")
     parser.add_argument("--n-latest", type=int, default=5, help="if --years not given, pull this many latest years")
+    parser.add_argument("--mirror", action="store_true", help="use the GitHub release copy instead of CMS")
     args = parser.parse_args()
 
     RAW_DIR.mkdir(parents=True, exist_ok=True)
-    available = find_yearly_api_urls()
+    if args.mirror:
+        download_mirror()
+        return
+    try:
+        available = find_yearly_api_urls()
+    except Exception as exc:  # noqa: BLE001 - any CMS failure means use the mirror
+        print(f"CMS not reachable ({exc}); using the GitHub release copy instead.")
+        download_mirror()
+        return
     print(f"CMS lists data years: {list(available)}", flush=True)
     years = args.years or list(available)[-args.n_latest:]
 

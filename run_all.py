@@ -3,8 +3,9 @@ Run the whole pipeline in order.
 
     python run_all.py            # real data: download from CMS, then analyse
     python run_all.py --sample   # synthetic test data (no internet needed)
+    python run_all.py --mirror   # real data from this repo's GitHub release
+                                 # (for networks where data.cms.gov is blocked)
     python run_all.py --skip-download   # reuse CSVs already in data/raw/
-                                        # (e.g. where data.cms.gov is not reachable)
 """
 import subprocess
 import sys
@@ -20,4 +21,5 @@ elif "--skip-download" not in sys.argv:
 
 for step in steps:
     print(f"\n=== {step} ===")
-    subprocess.run([sys.executable, str(SRC / step)], check=True, cwd=SRC)
+    extra = ["--mirror"] if step == "01_download.py" and "--mirror" in sys.argv else []
+    subprocess.run([sys.executable, str(SRC / step)] + extra, check=True, cwd=SRC)
