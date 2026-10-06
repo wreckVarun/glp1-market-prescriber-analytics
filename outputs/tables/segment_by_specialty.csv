@@ -71,8 +71,8 @@ Dentist,0,0,9,0,0,127,127
 Neuropsychiatry,0,0,5,0,0,127,127
 Case Manager/Care Coordinator,1,0,0,113,0,0,113
 Podiatry,0,0,7,0,0,108,108
-Pathology,0,0,3,0,0,82,82
 Medical Genetics and Genomics,1,0,0,82,0,0,82
+Pathology,0,0,3,0,0,82,82
 Chiropractic,0,0,5,0,0,77,77
 Thoracic Surgery (Cardiothoracic Vascular Surgery),0,0,4,0,0,76,76
 "Neuromusculoskeletal Medicine, Sports Medicine",0,0,2,0,0,50,50
@@ -82,9 +82,9 @@ Midwife,0,0,1,0,0,45,45
 Neurological Surgery,0,0,2,0,0,45,45
 Optometry,0,0,2,0,0,39,39
 Peripheral Vascular Disease,0,0,2,0,0,38,38
+Plastic Surgery,0,0,2,0,0,34,34
 Behavior Analyst,0,0,1,0,0,34,34
 Unknown,0,0,1,0,0,34,34
-Plastic Surgery,0,0,2,0,0,34,34
 Acupuncturist,0,0,2,0,0,32,32
 Program of All-Inclusive Care for the Elderly (PACE) Provider Organization,0,0,1,0,0,31,31
 Undersea and Hyperbaric Medicine,0,0,1,0,0,27,27
@@ -97,9 +97,9 @@ Surgery,0,0,1,0,0,17,17
 Health Maintenance Organization,0,0,1,0,0,16,16
 Licensed Clinical Social Worker,0,0,1,0,0,14,14
 Certified Registered Nurse Anesthetist (CRNA),0,0,1,0,0,14,14
-Hospital,0,0,1,0,0,13,13
 General Acute Care Hospital,0,0,1,0,0,13,13
+Hospital,0,0,1,0,0,13,13
 Adult Congenital Heart Disease,0,0,1,0,0,12,12
 Contractor,0,0,1,0,0,12,12
-Homeopath,0,0,1,0,0,11,11
 Specialist/Technologist,0,0,1,0,0,11,11
+Homeopath,0,0,1,0,0,11,11
