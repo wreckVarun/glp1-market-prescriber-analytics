@@ -76,7 +76,7 @@ SOURCES = {
     ]),
     "seg": ("4_prescriber_segments", [
         ("NPI", "string", "dimension", "nominal", {}),
-        ("Claims (latest yr)", "integer", "measure", "quantitative", {"default-format": "n#,##0"}),
+        ("Claims (latest yr)", "integer", "measure", "quantitative", {"default-format": CLAIMS_FMT}),
         ("Claims (prior yr)", "integer", "measure", "quantitative", {"default-format": "n#,##0"}),
         ("Claims YoY", "real", "measure", "quantitative", {"default-format": "p0%"}),
         ("New Prescriber", "boolean", "dimension", "nominal", {}),
@@ -196,6 +196,20 @@ def inst(kind, fname, ftype):
     return f"[{kind}:{fname}:{suffix}]"
 
 
+def tooltip_xml(tip):
+    """Formatted tooltip: first entry is the bold heading, the rest are 'label: value' lines."""
+    runs = []
+    for i, (label, ref) in enumerate(tip):
+        if i == 0 or label == "·":
+            if i:
+                runs.append("<run fontcolor='#1f2a44' fontsize='11'> · </run>")
+            runs.append(f"<run bold='true' fontcolor='#1f2a44' fontsize='11'><![CDATA[<{ref}>]]></run>")
+            continue
+        runs.append(f"<run fontcolor='#6b7280'>&#10;{escape(label)}:&#9;</run>")
+        runs.append(f"<run bold='true' fontcolor='#1f2a44'><![CDATA[<{ref}>]]></run>")
+    return "<customized-tooltip><formatted-text>" + "".join(runs) + "</formatted-text></customized-tooltip>"
+
+
 class Sheet:
     def __init__(self, name, key, mark):
         self.name, self.key, self.mark = name, key, mark
@@ -208,7 +222,8 @@ class Sheet:
         self.styles = []
         self.title = name
         self.is_map = mark == "Multipolygon"
-        self.label_fields = None
+        self.tip = []        # [(label, field ref)] for a formatted tooltip
+        self.band = False    # zebra rows for text tables
 
     def use(self, kind, fname, as_type=None):
         f = field(self.key, fname)
@@ -223,6 +238,34 @@ class Sheet:
 
     def ref(self, raw):
         return f"[{ds_name(self.key)}].{raw}"
+
+    def clean_styles(self):
+        """Quiet chart chrome: no field labels, no vertical gridlines, no axis titles the chart title already gives."""
+        rules = []
+        if self.mark != "Text":  # keep column headers on the target list table
+            rules.append("<style-rule element='worksheet'><format attr='display-field-labels' scope='rows' value='false' />"
+                         "<format attr='display-field-labels' scope='cols' value='false' /></style-rule>")
+        if self.is_map:
+            rules.append("<style-rule element='map'><format attr='washout' value='0.0' /><format attr='map-style' value='light' /></style-rule>")
+            return rules
+        rows_on = "on" if self.mark == "Line" else "off"
+        rules.append(f"<style-rule element='gridline'><format attr='line-visibility' scope='rows' value='{rows_on}' />"
+                     "<format attr='line-pattern-only' scope='rows' value='dotted' />"
+                     "<format attr='line-visibility' scope='cols' value='off' /></style-rule>")
+        rules.append("<style-rule element='zeroline'><format attr='line-visibility' scope='rows' value='off' />"
+                     "<format attr='line-visibility' scope='cols' value='off' /></style-rule>")
+        hide = [(r, "rows") for r in self.rows if r.endswith(":qk]")] + [(c, "cols") for c in self.cols if c.endswith(":qk]")]
+        if hide:
+            rules.append("<style-rule element='axis'>" + "".join(
+                f"<format attr='title' class='0' field={q(f)} scope={q(sc)} value='' />" for f, sc in hide) + "</style-rule>")
+        rules.append("<style-rule element='table-div'><format attr='line-visibility' scope='rows' value='off' />"
+                     "<format attr='line-visibility' scope='cols' value='off' /></style-rule>")
+        if self.band:
+            rules.append("<style-rule element='table'><format attr='band-size' scope='rows' value='1' /></style-rule>")
+            rules.append("<style-rule element='pane'><format attr='band-color' scope='rows' value='#f4f6fa' /></style-rule>")
+            rules.append("<style-rule element='header'><format attr='band-color' scope='rows' value='#f4f6fa' /></style-rule>")
+        return rules
+
 
     def xml(self):
         d = ds_name(self.key)
@@ -253,8 +296,7 @@ class Sheet:
             out.append("          </slices>")
         out += ["          <aggregation value='true' />",
                 "        </view>"]
-        if self.is_map:
-            self.styles.append("<style-rule element='map'><format attr='washout' value='0.0' /><format attr='map-style' value='light' /></style-rule>")
+        self.styles += self.clean_styles()
         if self.styles:
             out.append("        <style>")
             out += ["          " + x for x in self.styles]
@@ -271,6 +313,8 @@ class Sheet:
             out.append("            <encodings>")
             out += [f"              <{tag} column={q(c)} />" for tag, c in self.encodings]
             out.append("            </encodings>")
+            if self.tip:
+                out.append("            " + tooltip_xml(self.tip))
             if any(tag == "text" for tag, _ in self.encodings) and self.mark != "Text":
                 out.append("            <style><style-rule element='mark'><format attr='mark-labels-show' value='true' /></style-rule></style>")
         out += ["          </pane>",
@@ -328,12 +372,13 @@ sheets = []
 
 # 1. Brand trend (top 6 brands)
 s = Sheet("Claims by Brand", "brand", "Line")
-s.title = "GLP-1 Part D claims by brand, 2020-2024"
+s.title = "GLP-1 Part D claims, top 4 brands, 2020-2024"
 s.cols = [s.use("none", "Year")]
 s.rows = [s.use("sum", "Claims")]
 brand = s.use("none", "Brand")
 s.encodings = [("color", brand), ("text", brand), ("tooltip", s.use("sum", "Claims YoY"))]
-s.filters = [top_filter(brand, "[none:Brand:nk]", 6, "SUM([Claims])")]
+s.filters = [top_filter(brand, "[none:Brand:nk]", 4, "SUM([Claims])")]
+s.tip = [("", brand), ("·", s.use("none", "Year")), ("Claims", s.use("sum", "Claims")), ("Growth vs prior year", s.use("sum", "Claims YoY"))]
 sheets.append(s)
 
 # 2. Brand share for a chosen year (Year quick filter, default 2024)
@@ -348,6 +393,7 @@ s.sorts = [sort(brand, share)]
 s.slices = [year]
 s.encodings = [("color", brand), ("text", share), ("tooltip", s.use("sum", "Claims")),
                ("tooltip", s.use("sum", "Claims YoY"))]
+s.tip = [("", brand), ("Share of claims", share), ("Claims", s.use("sum", "Claims")), ("Growth vs prior year", s.use("sum", "Claims YoY"))]
 sheets.append(s)
 
 # 3. State map
@@ -360,6 +406,9 @@ s.filters = [union_filter(st, "[none:State:nk]", [x for x in US_STATES if x not 
 s.encodings = [("color", claims), ("lod", st), ("tooltip", s.use("sum", "Claims YoY")),
                ("tooltip", s.use("sum", "Prescribers")), ("tooltip", s.use("sum", "High-value Prescribers")),
                ("tooltip", s.use("sum", "Emerging Prescribers")), ("geometry", s.ref("[Geometry (generated)]"))]
+s.tip = [("", st), ("Claims", claims), ("Growth vs prior year", s.use("sum", "Claims YoY")),
+         ("Prescribers", s.use("sum", "Prescribers")), ("High-value prescribers", s.use("sum", "High-value Prescribers")),
+         ("Emerging prescribers", s.use("sum", "Emerging Prescribers"))]
 sheets.append(s)
 
 # 4. Top 10 states bar (complements the map)
@@ -371,6 +420,7 @@ s.rows, s.cols = [st], [claims]
 s.filters = [top_filter(st, "[none:State:nk]", 10, "SUM([Claims])")]
 s.sorts = [sort(st, claims)]
 s.encodings = [("text", claims), ("tooltip", s.use("sum", "Claims YoY"))]
+s.tip = [("", st), ("Claims", claims), ("Growth vs prior year", s.use("sum", "Claims YoY"))]
 sheets.append(s)
 
 # 5. Specialty top 10
@@ -383,6 +433,8 @@ s.filters = [top_filter(sp, "[none:Specialty:nk]", 10, "SUM([Claims])")]
 s.sorts = [sort(sp, claims)]
 s.encodings = [("text", claims), ("tooltip", s.use("sum", "Claims per Prescriber")),
                ("tooltip", s.use("sum", "Prescribers"))]
+s.tip = [("", sp), ("Claims", claims), ("Prescribers", s.use("sum", "Prescribers")),
+         ("Claims per prescriber", s.use("sum", "Claims per Prescriber"))]
 sheets.append(s)
 
 # 6. Segments
@@ -393,7 +445,7 @@ claims = s.use("sum", "Claims (latest yr)")
 s.rows, s.cols = [seg], [claims]
 s.sorts = [sort(seg, claims)]
 s.encodings = [("color", seg), ("text", claims), ("tooltip", s.use("ctd", "NPI"))]
-s.styles = [f"<style-rule element='cell'><format attr='text-format' field={q(claims)} value={q(CLAIMS_FMT)} /></style-rule>"]
+s.tip = [("", seg), ("Claims (latest year)", claims), ("Prescribers", s.use("ctd", "NPI"))]
 sheets.append(s)
 
 # 7. Forecast (Brand quick filter)
@@ -404,6 +456,7 @@ scen = s.use("none", "Scenario")
 brand = s.use("none", "Brand")
 s.cols, s.rows = [yr], [s.use("sum", "Claims")]
 s.encodings = [("color", scen), ("text", scen)]
+s.tip = [("", scen), ("·", yr), ("Claims", s.use("sum", "Claims"))]
 s.filters = [all_filter(brand, "[none:Brand:nk]")]
 s.slices = [brand]
 sheets.append(s)
@@ -421,6 +474,7 @@ s.filters = [member_filter(yr, "[none:Year:ok]", "2025"), member_filter(scen, "[
 s.sorts = [sort(brand, claims)]
 s.slices = [yr, scen]
 s.encodings = [("color", brand), ("text", claims)]
+s.tip = [("", brand), ("2025 base-case claims", claims)]
 sheets.append(s)
 
 # 8. Target list
@@ -433,36 +487,53 @@ pres = s.use("none", "Prescriber")
 s.rows = [pres, s.use("none", "Specialty"), s.use("none", "City"), st, s.use("none", "Top Brand")]
 s.cols = []
 s.encodings = [("text", claims)]
+s.styles = [f"<style-rule element='cell'><format attr='text-format' field={q(claims)} value='n#,##0' /></style-rule>"]
 tb = s.use("none", "Top Brand")
 s.filters = [member_filter(seg, "[none:Segment:nk]", '"High-value"'), all_filter(st, "[none:State:nk]"),
              all_filter(tb, "[none:Top Brand:nk]")]
 s.sorts = [sort(pres, claims)]
 s.slices = [seg, st, tb]
+s.band = True
 sheets.append(s)
 
 # ---------------------------------------------------------------- dashboards
 U = 100000
-NAVY, MUTED_TXT, TILE_BG = "#1f2a44", "#52514e", "#f2f5fa"
+NAVY, MUTED_TXT = "#1f2a44", "#5b6475"
+PAGE_BG = "#eef1f6"
+CARD = {"background-color": "#ffffff", "border-style": "solid", "border-color": "#dde3ec", "border-width": "1",
+        "margin": "5", "padding": "8"}
+BANNER = {"background-color": NAVY, "border-style": "none", "border-width": "0", "margin": "0", "padding": "12"}
 
 
-def zone(zid, x, y, w, h, **kw):
+def zone_style(style):
+    if not style:
+        return ""
+    return "<zone-style>" + "".join(f"<format attr={q(k)} value={q(v)} />" for k, v in style.items()) + "</zone-style>"
+
+
+def zone(zid, x, y, w, h, style=None, **kw):
     attrs = {"h": str(h), "id": str(zid), **kw, "w": str(w), "x": str(x), "y": str(y)}
-    return "<zone " + " ".join(f"{k}={q(v)}" for k, v in attrs.items()) + " />"
+    head = "<zone " + " ".join(f"{k}={q(v)}" for k, v in attrs.items())
+    return head + (f">{zone_style(style)}</zone>" if style else " />")
 
 
-def text_zone(zid, x, y, w, h, runs):
+def text_zone(zid, x, y, w, h, runs, style=None):
     body = "".join(f"<run{(' ' + a) if a else ''}>{escape(t)}</run>" for t, a in runs)
     return (f"<zone h={q(str(h))} id={q(str(zid))} type-v2='text' w={q(str(w))} x={q(str(x))} y={q(str(y))}>"
-            f"<formatted-text>{body}</formatted-text></zone>")
+            f"<formatted-text>{body}</formatted-text>{zone_style(style)}</zone>")
+
+
+def card_text(zid, x, y, w, h, runs):
+    return text_zone(zid, x, y, w, h, runs, style=CARD)
 
 
 def filter_zone(zid, x, y, w, h, sheet, key, fname, mode):
-    return zone(zid, x, y, w, h, mode=mode, name=sheet, param=f"[{ds_name(key)}].[none:{fname}:{'ok' if fname == 'Year' else 'nk'}]",
-                **{"type-v2": "filter"})
+    return zone(zid, x, y, w, h, style=CARD, mode=mode, name=sheet,
+                param=f"[{ds_name(key)}].[none:{fname}:{'ok' if fname == 'Year' else 'nk'}]", **{"type-v2": "filter"})
 
 
-def kpi(zid, x, y, w, h, value, label):
-    return text_zone(zid, x, y, w, h, [(value + "\n", f"bold='true' fontcolor='{NAVY}' fontsize='22'"),
+def kpi(zid, x, y, w, h, value, label, color=NAVY):
+    return card_text(zid, x, y, w, h, [(value + "\n", f"bold='true' fontcolor='{color}' fontname='Tableau Semibold' fontsize='24'"),
                                        (label, f"fontcolor='{MUTED_TXT}' fontsize='10'")])
 
 
@@ -475,8 +546,9 @@ class Dash:
         self.name, self.w, self.h = name, w, h
         self.zones, self.sheets, self.tiles = [], [], []
         self.next_id = 2
-        self.add_text(0, 0, U, 7000, [(title, f"bold='true' fontcolor='{NAVY}' fontsize='18'")])
-        self.add_text(0, 7000, U, 4500, [(subtitle, f"fontcolor='{MUTED_TXT}' fontsize='10'")])
+        self.zones.append(text_zone(self.nid(), 0, 0, U, 11500, [
+            (title + "\n", "bold='true' fontcolor='#ffffff' fontname='Tableau Semibold' fontsize='18'"),
+            (subtitle, "fontcolor='#c9d4e8' fontsize='10'")], style=BANNER))
 
     def nid(self):
         self.next_id += 1
@@ -486,30 +558,23 @@ class Dash:
         self.zones.append(text_zone(self.nid(), x, y, w, h, runs))
 
     def add_sheet(self, name, x, y, w, h):
-        self.zones.append(zone(self.nid(), x, y, w, h, name=name))
+        self.zones.append(zone(self.nid(), x, y, w, h, style=CARD, name=name))
         self.sheets.append(name)
 
     def add_filter(self, x, y, w, h, sheet, key, fname, mode):
         self.zones.append(filter_zone(self.nid(), x, y, w, h, sheet, key, fname, mode))
 
-    def add_kpi(self, x, y, w, h, value, label):
-        zid = self.nid()
-        self.zones.append(kpi(zid, x, y, w, h, value, label))
-        self.tiles.append(zid)
+    def add_kpi(self, x, y, w, h, value, label, color=NAVY):
+        self.zones.append(kpi(self.nid(), x, y, w, h, value, label, color))
 
     def xml(self):
         inner = "\n".join("          " + z for z in self.zones)
-        style = ""
-        if self.tiles:
-            fmts = "".join(f"<format attr='background-color' id='dash-zone_{t}' value='{TILE_BG}' />"
-                           f"<format attr='border-style' id='dash-zone_{t}' value='solid' />"
-                           f"<format attr='border-color' id='dash-zone_{t}' value='#d9e1ec' />" for t in self.tiles)
-            style = f"<style-rule element='dash-container'>{fmts}</style-rule>"
         return (f"    <dashboard name={q(self.name)}>\n"
-                f"      <style>{style}</style>\n"
+                "      <style />\n"
                 f"      <size maxheight='{self.h}' maxwidth='{self.w}' minheight='{self.h}' minwidth='{self.w}' />\n"
                 "      <zones>\n"
                 f"        <zone h='100000' id='1' type-v2='layout-basic' w='100000' x='0' y='0'>\n{inner}\n"
+                f"          {zone_style({'background-color': PAGE_BG})}\n"
                 "        </zone>\n"
                 "      </zones>\n"
                 "    </dashboard>")
@@ -519,12 +584,13 @@ dashes = []
 
 # Overview: KPI tiles + key charts
 d = Dash("Overview", "GLP-1 Market Opportunity, Segmentation & Forecast (US Medicare Part D)", SOURCE_NOTE, h=800)
-kpis = [("19.6M", "GLP-1 claims in 2024"), ("$24.6B", "gross drug cost in 2024"), ("+39%", "claims growth vs 2023"),
-        ("59%", "of claims from the top 20% of prescribers"), ("27.5M", "claims forecast for 2025 (base)")]
-for i, (v, l) in enumerate(kpis):
-    d.add_kpi(i * 20000 + 500, 12500, 19000, 11000, v, l)
-d.add_sheet("Claims by Brand", 0, 24500, 50000, 37500)
-d.add_sheet("Brand Share", 50000, 24500, 50000, 37500)
+kpis = [("19.6M", "GLP-1 Part D claims in 2024", NAVY), ("$24.6B", "gross drug cost in 2024", NAVY),
+        ("+39%", "claims growth vs 2023", "#1a9e6e"), ("59%", "of claims from top 20% of prescribers", "#eb6834"),
+        ("27.5M", "2025 claims forecast (base)", "#2a78d6")]
+for i, (v, l, c) in enumerate(kpis):
+    d.add_kpi(i * 20000, 12000, 20000, 12000, v, l, c)
+d.add_sheet("Claims by Brand", 0, 24000, 50000, 38000)
+d.add_sheet("Brand Share", 50000, 24000, 50000, 38000)
 d.add_sheet("Prescriber Segments", 0, 62000, 50000, 38000)
 d.add_sheet("Forecast 2025", 50000, 62000, 50000, 38000)
 dashes.append(d)
@@ -541,16 +607,15 @@ d = Dash("Geography", "Market by state: volume is concentrated in the largest st
 d.add_sheet("Claims by State", 0, 12000, 62000, 88000)
 d.add_sheet("Top States", 62000, 12000, 38000, 55000)
 zid = d.nid()
-d.zones.append(text_zone(zid, 63000, 69000, 36000, 29000, [
+d.zones.append(card_text(zid, 62000, 67000, 38000, 33000, [
     ("California is the biggest gap\n", f"bold='true' fontcolor='{NAVY}' fontsize='13'"),
     ("2nd-largest state (8.4% of claims, +42% growth), but Mounjaro holds only 15% of its GLP-1 claims vs 24% nationally. "
      "Matching the national share would add about 140K claims. Pennsylvania (19%), Illinois (21%) and New York (21%) show smaller versions of the same gap.",
      f"fontcolor='{MUTED_TXT}' fontsize='10'")]))
-d.tiles.append(zid)
 dashes.append(d)
 
 d = Dash("Prescribers", "Prescriber segmentation: a small group drives the market",
-         "Prescribers segmented by claim volume and year-on-year growth. High-value = top 20% by volume (59% of claims); Emerging = mid-volume and growing faster than the market; Low-adopter = the rest. Primary care (FP, IM, NP, PA) writes 82% of claims.")
+         "Segmented by volume and YoY growth. High-value = top 20% (59% of claims); Emerging = mid-volume, growing faster than the market; primary care writes 82% of claims.")
 d.add_sheet("Prescriber Segments", 0, 12000, 45000, 88000)
 d.add_sheet("Top 10 Specialties", 45000, 12000, 55000, 88000)
 dashes.append(d)
@@ -561,37 +626,35 @@ d.add_sheet("Forecast 2025", 0, 12000, 50000, 88000)
 d.add_filter(50000, 12000, 15000, 50000, "Forecast 2025", "fc", "Brand", "checklist")
 d.add_sheet("Forecast by Brand", 65000, 12000, 35000, 55000)
 zid = d.nid()
-d.zones.append(text_zone(zid, 66000, 69000, 33000, 29000, [
+d.zones.append(card_text(zid, 66000, 69000, 33000, 29000, [
     ("What drives the forecast\n", f"bold='true' fontcolor='{NAVY}' fontsize='13'"),
     ("Ozempic 15.1M (14.1M-16.1M), Mounjaro 7.9M (7.4M-8.3M), Trulicity 3.0M (2.6M-3.4M). "
      "Mounjaro rises from 24% to about 29% of claims while Trulicity falls from 19% to about 11%. "
      "Brand forecasts split each molecule by its 2024 brand shares and add back to the 27.5M total.",
      f"fontcolor='{MUTED_TXT}' fontsize='10'")]))
-d.tiles.append(zid)
 dashes.append(d)
 
 d = Dash("Targeting", "So what: where the Mounjaro sales force should focus",
          "Recommendations from the brand-team memo (docs/memo.md). Use the filters to build a call list for each priority.")
 d.add_sheet("Target List", 0, 12000, 64000, 88000)
-d.add_filter(65000, 12000, 17000, 15000, "Target List", "seg", "Segment", "radiolist")
-d.add_filter(83000, 12000, 17000, 7500, "Target List", "seg", "State", "checkdropdown")
-d.add_filter(83000, 19500, 17000, 7500, "Target List", "seg", "Top Brand", "checkdropdown")
+d.add_filter(65000, 12000, 17000, 18500, "Target List", "seg", "Segment", "radiolist")
+d.add_filter(83000, 12000, 17000, 9250, "Target List", "seg", "State", "checkdropdown")
+d.add_filter(83000, 21250, 17000, 9250, "Target List", "seg", "Top Brand", "checkdropdown")
 SO_WHAT = [
-    ("So what for the brand team\n", f"bold='true' fontcolor='{NAVY}' fontsize='13'"),
-    ("1. Convert high-value Ozempic loyalists. ", f"bold='true' fontcolor='{NAVY}' fontsize='10'"),
-    ("27,407 of 40,232 high-value prescribers write mostly Ozempic. Filter: High-value + Top Brand = Ozempic.\n\n", f"fontcolor='{MUTED_TXT}' fontsize='10'"),
-    ("2. Keep Trulicity patients inside Lilly. ", f"bold='true' fontcolor='{NAVY}' fontsize='10'"),
-    ("Trulicity lost about 1M claims in 2024; 8,881 high-value and emerging prescribers still write mostly Trulicity.\n\n", f"fontcolor='{MUTED_TXT}' fontsize='10'"),
-    ("3. Fix the California gap. ", f"bold='true' fontcolor='{NAVY}' fontsize='10'"),
-    ("California holds 8.4% of claims but Mounjaro's share there is 15% vs 24% nationally: about 140K claims of upside.\n\n", f"fontcolor='{MUTED_TXT}' fontsize='10'"),
-    ("4. Build the emerging pipeline. ", f"bold='true' fontcolor='{NAVY}' fontsize='10'"),
-    ("37,422 emerging prescribers are growing faster than the market; 12,619 write no visible Mounjaro.\n\n", f"fontcolor='{MUTED_TXT}' fontsize='10'"),
-    ("5. Use endocrinologists for influence, not reach. ", f"bold='true' fontcolor='{NAVY}' fontsize='10'"),
-    ("They write 4-5x more per head but only 13% of claims.", f"fontcolor='{MUTED_TXT}' fontsize='10'"),
+    ("So what for the brand team\n", f"bold='true' fontcolor='{NAVY}' fontsize='15'"),
+    ("1. Convert high-value Ozempic loyalists. ", f"bold='true' fontcolor='{NAVY}' fontsize='11'"),
+    ("27,407 of 40,232 high-value prescribers write mostly Ozempic. Filter: High-value + Top Brand = Ozempic.\n\n", f"fontcolor='{MUTED_TXT}' fontsize='11'"),
+    ("2. Keep Trulicity patients inside Lilly. ", f"bold='true' fontcolor='{NAVY}' fontsize='11'"),
+    ("Trulicity lost about 1M claims in 2024; 8,881 high-value and emerging prescribers still write mostly Trulicity.\n\n", f"fontcolor='{MUTED_TXT}' fontsize='11'"),
+    ("3. Fix the California gap. ", f"bold='true' fontcolor='{NAVY}' fontsize='11'"),
+    ("California holds 8.4% of claims but Mounjaro's share there is 15% vs 24% nationally: about 140K claims of upside.\n\n", f"fontcolor='{MUTED_TXT}' fontsize='11'"),
+    ("4. Build the emerging pipeline. ", f"bold='true' fontcolor='{NAVY}' fontsize='11'"),
+    ("37,422 emerging prescribers are growing faster than the market; 12,619 write no visible Mounjaro.\n\n", f"fontcolor='{MUTED_TXT}' fontsize='11'"),
+    ("5. Use endocrinologists for influence, not reach. ", f"bold='true' fontcolor='{NAVY}' fontsize='11'"),
+    ("They write 4-5x more per head but only 13% of claims.", f"fontcolor='{MUTED_TXT}' fontsize='11'"),
 ]
 zid = d.nid()
-d.zones.append(text_zone(zid, 65000, 28500, 35000, 71500, SO_WHAT))
-d.tiles.append(zid)
+d.zones.append(card_text(zid, 65000, 30500, 35000, 69500, SO_WHAT))
 dashes.append(d)
 
 # Story: caption buttons switch between the focused dashboards
@@ -605,7 +668,7 @@ points = [("Market sizing: 19.6M claims, $24.6B", "Overview"),
 sp_xml = "".join(f"<story-point caption={q(c)} captured-sheet={q(sh)} id='{i}' />" for i, (c, sh) in enumerate(points, 1))
 story_xml = (f"    <dashboard name={q(STORY)} type='storyboard'>\n"
              f"      <layout-options><title><formatted-text><run bold='true' fontcolor='{NAVY}' fontsize='16'>GLP-1 Market Opportunity, Segmentation &amp; Forecast</run></formatted-text></title></layout-options>\n"
-             "      <style><style-rule element='story-point-caption'><format attr='background-color' value='#e8eef7' /></style-rule></style>\n"
+             "      <style><style-rule element='story-point-caption'><format attr='background-color' value='#dfe7f3' /></style-rule></style>\n"
              "      <size maxheight='1060' maxwidth='1220' minheight='1060' minwidth='1220' />\n"
              "      <zones>\n"
              "        <zone h='100000' id='2' type-v2='layout-basic' w='100000' x='0' y='0'>\n"
