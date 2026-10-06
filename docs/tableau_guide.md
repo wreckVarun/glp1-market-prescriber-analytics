@@ -86,7 +86,7 @@ Source: `5_forecast`.
 
 ## 10. Publish (2 min)
 **File > Save to Tableau Public As**, sign in, name it "GLP-1 Market & Prescriber Analytics".
-It opens in your browser. Copy the URL into the repo README under "Dashboard".
+It opens in your browser. Copy the URL into the repo README under "Dashboard". Published version: https://public.tableau.com/app/profile/varun.kumar2269/viz/glp1_dashboard/GLP-1MarketStory
 
 ## Interview talking points for the dashboard
 - Why separate data sources instead of one join? Different grains (brand-year vs prescriber vs state). A join would duplicate rows and inflate totals.

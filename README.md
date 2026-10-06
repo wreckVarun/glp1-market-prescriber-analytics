@@ -9,7 +9,7 @@ liraglutide, exenatide) built on public **CMS Medicare Part D Prescribers by Pro
 1. **Market sizing:** how big is the Part D GLP-1 market, which brands lead, and which states and specialties hold the volume?
 2. **Prescriber segmentation:** which prescribers are high-value, emerging or low-adopters?
 3. **Forecast:** how many claims next year, by molecule and by brand, under base, high and low scenarios?
-4. **Recommendation:** a one-page memo for the brand team (`docs/memo.md`) and a Tableau Public dashboard.
+4. **Recommendation:** a one-page memo for the brand team (`docs/memo.md`) and a [Tableau Public dashboard](https://public.tableau.com/app/profile/varun.kumar2269/viz/glp1_dashboard/GLP-1MarketStory).
 
 ## Key results (CMS data years 2020 to 2024)
 - **Market:** 19.6M GLP-1 Part D claims and $24.6B gross drug cost in 2024 (+39% claims YoY, 4.1x 2020).
@@ -98,6 +98,8 @@ Full reasoning, assumptions and weaknesses: [`docs/methodology.md`](docs/methodo
 - **Mounjaro launched mid-2022**, so its trend rests on very few data points.
 
 ## Dashboard
+**Live on Tableau Public: [GLP-1 Market Opportunity, Segmentation & Forecast](https://public.tableau.com/app/profile/varun.kumar2269/viz/glp1_dashboard/GLP-1MarketStory)**
+
 [`outputs/tableau/glp1_dashboard.twbx`](outputs/tableau/glp1_dashboard.twbx) is a ready-to-open Tableau workbook (data included).
 It opens on **GLP-1 Market Story**, where caption buttons switch between six views:
 
@@ -111,7 +113,7 @@ It opens on **GLP-1 Market Story**, where caption buttons switch between six vie
 | So what | memo recommendations next to a prescriber target list | segment, state and top-brand filters |
 
 Rebuild it after rerunning the pipeline with `pip install tableauhyperapi` then `python src/08_tableau_workbook.py`.
-Manual build guide: [`docs/tableau_guide.md`](docs/tableau_guide.md). Tableau Public link: _to be added_.
+Manual build guide: [`docs/tableau_guide.md`](docs/tableau_guide.md).
 
 ## Tools
 Python (pandas, NumPy, Matplotlib), Tableau Public.
