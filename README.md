@@ -37,6 +37,7 @@ All thresholds and assumptions live in `src/config.py`.
 pip install -r requirements.txt
 python run_all.py            # downloads real CMS data, then runs every step
 python run_all.py --sample   # synthetic data with the CMS layout, for testing without internet
+python run_all.py --skip-download   # reuse CSVs already in data/raw/ (data.cms.gov blocks some non-US networks)
 ```
 
 ## Methods (deliberately simple and explainable)
