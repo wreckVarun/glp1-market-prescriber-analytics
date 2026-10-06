@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
+# Raw and processed CMS pulls are large; recreate with python run_all.py
+data/raw/
+data/processed/
