@@ -32,13 +32,17 @@ from config import GLP1_GENERICS, KEEP_COLS, RAW_DIR
 CATALOG_URL = "https://data.cms.gov/data.json"
 DATASET_TITLE = "Medicare Part D Prescribers - by Provider and Drug"
 PAGE_SIZE = 5000  # CMS API maximum rows per request
+USER_AGENT = "Mozilla/5.0 (glp1-market-prescriber-analytics)"
 
 
 def get_json(url, retries=4):
     """GET a URL and parse JSON, retrying with exponential backoff on network errors."""
     for attempt in range(retries):
         try:
-            with urllib.request.urlopen(url, timeout=120) as resp:
+            # data.cms.gov rejects Python's default "Python-urllib" agent with
+            # HTTP 403, so identify as a normal browser-style client.
+            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, "Accept": "application/json"})
+            with urllib.request.urlopen(req, timeout=120) as resp:
                 return json.loads(resp.read().decode("utf-8"))
         except Exception as exc:  # noqa: BLE001 - we want to retry on any network error
             if attempt == retries - 1:
