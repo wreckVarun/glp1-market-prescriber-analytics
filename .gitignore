@@ -5,3 +5,7 @@ __pycache__/
 # Raw and processed CMS pulls are large; recreate with python run_all.py
 data/raw/
 data/processed/
+# Tableau / Hyper working files
+*.twbr
+hyperd*.log
+outputs/tableau/_twbx_build/

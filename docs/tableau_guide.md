@@ -1,5 +1,9 @@
 # Building the dashboard in Tableau Public
 
+**Quick option:** open `outputs/tableau/glp1_dashboard.twbx` in Tableau Public (it is built by
+`src/08_tableau_workbook.py` and already contains the story, dashboards and extracts), check it, then
+**File > Save to Tableau Public As**. The steps below rebuild a similar dashboard by hand.
+
 Time: about 45 minutes. You need Tableau Public (free desktop app) and a free Tableau Public account.
 All files are in `outputs/tableau/`.
 
@@ -64,6 +68,8 @@ Source: `5_forecast`.
 1. `Year` to Columns (discrete), `Claims` to Rows (SUM), `Scenario` to Color.
 2. Drag `Brand` and `Molecule` to Filters and Show Filter on both, so the viewer can pick one brand, one molecule or all.
    Brands add up exactly to their molecule, so SUM(Claims) is correct at any level.
+   The last actual year is repeated under Low, Base and High so each scenario line starts from the last actual point.
+   Never add the scenarios together; keep `Scenario` on Color.
 3. Edit colors: Actual = dark grey, Base = blue, High and Low = light blue. On the Marks card, choose Line.
    Optional: Low and High as dashed lines (Marks > Path > dashed).
 

@@ -1,4 +1,4 @@
-Specialty,Claims,Gross Drug Cost,Prescribers,cost_per_claim,Claims per Prescriber,Claim Share
+Specialty,Claims,Gross Drug Cost,Prescribers,Cost per Claim,Claims per Prescriber,Claim Share
 Family Practice,5788253,7100499269.24,64038,1226.7085196932476,90.38778537743217,0.2954473240905783
 Internal Medicine,4885344,6060483011.61,44982,1240.5437593770264,108.60664265706282,0.249360525889584
 Nurse Practitioner,4044375,5016354035.97,51785,1240.3286134371813,78.09935309452544,0.2064353046366205

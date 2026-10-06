@@ -53,7 +53,7 @@ glp1-market-prescriber-analytics/
 ├── outputs/
 │   ├── tables/             # analysis tables (CSV)
 │   ├── charts/             # PNG charts
-│   └── tableau/            # dashboard-ready extracts
+│   └── tableau/            # dashboard-ready extracts + glp1_dashboard.twbx
 └── docs/
     ├── memo.md             # one-page brand-team recommendation
     ├── methodology.md      # assumptions, choices and weaknesses
@@ -70,6 +70,7 @@ glp1-market-prescriber-analytics/
 | 5 | `src/05_forecast.py` | next-year base / high / low forecast, by molecule and by brand |
 | 6 | `src/06_charts.py` | Matplotlib charts (`outputs/charts/`) |
 | 7 | `src/07_tableau_extracts.py` | dashboard-ready CSVs (`outputs/tableau/`) |
+| 8 | `src/08_tableau_workbook.py` (optional) | packaged Tableau workbook `outputs/tableau/glp1_dashboard.twbx` |
 
 All thresholds and assumptions live in `src/config.py`.
 
@@ -97,7 +98,20 @@ Full reasoning, assumptions and weaknesses: [`docs/methodology.md`](docs/methodo
 - **Mounjaro launched mid-2022**, so its trend rests on very few data points.
 
 ## Dashboard
-Build guide: [`docs/tableau_guide.md`](docs/tableau_guide.md). Tableau Public link: _to be added_.
+[`outputs/tableau/glp1_dashboard.twbx`](outputs/tableau/glp1_dashboard.twbx) is a ready-to-open Tableau workbook (data included).
+It opens on **GLP-1 Market Story**, where caption buttons switch between six views:
+
+| Story button | What it shows | Interaction |
+|---|---|---|
+| Market sizing | KPI tiles (19.6M claims, $24.6B, +39%, 59%, 27.5M), brand trend, share, segments, forecast | hover for detail |
+| By brand | claims by brand 2020-2024 and share of claims | pick a year |
+| By state | US map and top 10 states, with the California gap | hover a state |
+| By specialty & segment | high-value / emerging / low-adopter volume and top 10 specialties | hover for prescriber counts |
+| Forecast by brand | 2025 base / high / low scenarios and base case by brand | tick brands |
+| So what | memo recommendations next to a prescriber target list | segment, state and top-brand filters |
+
+Rebuild it after rerunning the pipeline with `pip install tableauhyperapi` then `python src/08_tableau_workbook.py`.
+Manual build guide: [`docs/tableau_guide.md`](docs/tableau_guide.md). Tableau Public link: _to be added_.
 
 ## Tools
 Python (pandas, NumPy, Matplotlib), Tableau Public.

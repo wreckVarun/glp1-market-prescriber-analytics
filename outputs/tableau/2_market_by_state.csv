@@ -1,4 +1,4 @@
-State,Claims,Gross Drug Cost,Prescribers,cost_per_claim,Claims YoY,Claims per Prescriber,Claim Share,Emerging Prescribers,High-value Prescribers,Low-adopter Prescribers,claims_emerging,claims_high_value,claims_low_adopter
+State,Claims,Gross Drug Cost,Prescribers,Cost per Claim,Claims YoY,Claims per Prescriber,Claim Share,Emerging Prescribers,High-value Prescribers,Low-adopter Prescribers,Claims (Emerging),Claims (High-value),Claims (Low-adopter)
 TX,1655983,2172076116.85,14686,1311.6536322232776,0.394835014424393,112.75929456625356,0.084534236334321,2856,3612,8218,258324,1065204,332455
 CA,1645809,1899340477.52,19330,1154.046719588968,0.4236843448345662,85.14273150543197,0.0840148763406101,3322,2934,13074,288435,903318,454056
 NY,1326355,1717233277.48,12442,1294.7010999920835,0.3407289551279264,106.603038096769,0.0677074625966621,2033,2600,7809,181367,839987,305001

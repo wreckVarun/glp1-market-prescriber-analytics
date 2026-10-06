@@ -34,6 +34,8 @@ def main():
         "prescribers": "Prescribers", "claims_yoy": "Claims YoY", "claims_per_prescriber": "Claims per Prescriber",
         "claim_share": "Claim Share", "prescribers_high_value": "High-value Prescribers",
         "prescribers_emerging": "Emerging Prescribers", "prescribers_low_adopter": "Low-adopter Prescribers",
+        "cost_per_claim": "Cost per Claim", "claims_high_value": "Claims (High-value)",
+        "claims_emerging": "Claims (Emerging)", "claims_low_adopter": "Claims (Low-adopter)",
     }).drop(columns=["claims_prior", "total_claims", "benes_lower_bound"], errors="ignore"),
         "2_market_by_state.csv")
 
@@ -41,6 +43,7 @@ def main():
     write(sp.rename(columns={
         "Prscrbr_Type": "Specialty", "claims": "Claims", "drug_cost": "Gross Drug Cost",
         "prescribers": "Prescribers", "claims_per_prescriber": "Claims per Prescriber", "claim_share": "Claim Share",
+        "cost_per_claim": "Cost per Claim",
     }).drop(columns=["benes_lower_bound"]), "3_market_by_specialty.csv")
 
     p = pd.read_csv(TABLES_DIR / "prescriber_segments.csv", dtype={"Prscrbr_NPI": str})
@@ -56,6 +59,13 @@ def main():
     # Brand grain: summing brands gives the molecule forecast, so one file serves
     # both a Brand and a Molecule filter.
     f = pd.read_csv(TABLES_DIR / "forecast_brand_long.csv")
+    # Repeat the last actual year under each scenario so the scenario lines
+    # start from the last actual point instead of floating as single dots.
+    last = f.loc[f["scenario"] == "Actual", "Year"].max()
+    fc_brands = f.loc[f["scenario"] != "Actual", "Brnd_Name"].unique()
+    anchor = f[(f["scenario"] == "Actual") & (f["Year"] == last) & f["Brnd_Name"].isin(fc_brands)]
+    f = pd.concat([f] + [anchor.assign(scenario=s) for s in ["Low", "Base", "High"]], ignore_index=True) \
+          .sort_values(["Brnd_Name", "Year", "scenario"])
     write(f.rename(columns={"Brnd_Name": "Brand", "Gnrc_Name": "Molecule", "scenario": "Scenario",
                             "claims_value": "Claims"}), "5_forecast.csv")
 

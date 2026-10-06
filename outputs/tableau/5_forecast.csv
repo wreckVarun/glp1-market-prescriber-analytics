@@ -7,65 +7,95 @@ Bydureon Bcise,Exenatide,2021,Actual,183057.0
 Bydureon Bcise,Exenatide,2022,Actual,160743.0
 Bydureon Bcise,Exenatide,2023,Actual,109771.0
 Bydureon Bcise,Exenatide,2024,Actual,85420.0
+Bydureon Bcise,Exenatide,2024,Base,85420.0
+Bydureon Bcise,Exenatide,2024,High,85420.0
+Bydureon Bcise,Exenatide,2024,Low,85420.0
+Bydureon Bcise,Exenatide,2025,Base,65436.08099558935
+Bydureon Bcise,Exenatide,2025,High,73978.08099558935
+Bydureon Bcise,Exenatide,2025,Low,56894.08099558935
 Byetta,Exenatide,2020,Actual,11261.0
 Byetta,Exenatide,2021,Actual,7293.0
 Byetta,Exenatide,2022,Actual,3549.0
 Byetta,Exenatide,2023,Actual,2699.0
 Byetta,Exenatide,2024,Actual,1865.0
+Byetta,Exenatide,2024,Base,1865.0
+Byetta,Exenatide,2024,High,1865.0
+Byetta,Exenatide,2024,Low,1865.0
+Byetta,Exenatide,2025,Base,1428.685214900189
+Byetta,Exenatide,2025,High,1615.185214900189
+Byetta,Exenatide,2025,Low,1242.185214900189
 Generic Liraglutide,Liraglutide,2024,Actual,14832.0
+Generic Liraglutide,Liraglutide,2024,Base,14832.0
+Generic Liraglutide,Liraglutide,2024,High,14832.0
+Generic Liraglutide,Liraglutide,2024,Low,14832.0
+Generic Liraglutide,Liraglutide,2025,Base,3015.3328807954017
+Generic Liraglutide,Liraglutide,2025,High,4498.532880795401
+Generic Liraglutide,Liraglutide,2025,Low,1532.1328807954014
 Mounjaro,Tirzepatide,2022,Actual,39468.0
 Mounjaro,Tirzepatide,2023,Actual,1521598.0
 Mounjaro,Tirzepatide,2024,Actual,4694896.0
+Mounjaro,Tirzepatide,2024,Base,4694896.0
+Mounjaro,Tirzepatide,2024,High,4694896.0
+Mounjaro,Tirzepatide,2024,Low,4694896.0
+Mounjaro,Tirzepatide,2025,Base,7868198.537333411
+Mounjaro,Tirzepatide,2025,High,8337688.13733341
+Mounjaro,Tirzepatide,2025,Low,7398708.93733341
 Ozempic,Semaglutide,2020,Actual,996503.0
 Ozempic,Semaglutide,2021,Actual,1703541.0
 Ozempic,Semaglutide,2022,Actual,2976893.0
 Ozempic,Semaglutide,2023,Actual,6416007.0
 Ozempic,Semaglutide,2024,Actual,9930484.0
+Ozempic,Semaglutide,2024,Base,9930484.0
+Ozempic,Semaglutide,2024,High,9930484.0
+Ozempic,Semaglutide,2024,Low,9930484.0
+Ozempic,Semaglutide,2025,Base,15103080.384652533
+Ozempic,Semaglutide,2025,High,16096128.784652531
+Ozempic,Semaglutide,2025,Low,14110031.984652534
 Rybelsus,Semaglutide,2020,Actual,22397.0
 Rybelsus,Semaglutide,2021,Actual,218708.0
 Rybelsus,Semaglutide,2022,Actual,457989.0
 Rybelsus,Semaglutide,2023,Actual,755052.0
 Rybelsus,Semaglutide,2024,Actual,899704.0
+Rybelsus,Semaglutide,2024,Base,899704.0
+Rybelsus,Semaglutide,2024,High,899704.0
+Rybelsus,Semaglutide,2024,Low,899704.0
+Rybelsus,Semaglutide,2025,Base,1368342.35213444
+Rybelsus,Semaglutide,2025,High,1458312.75213444
+Rybelsus,Semaglutide,2025,Low,1278371.9521344402
 Trulicity,Dulaglutide,2020,Actual,2486752.0
 Trulicity,Dulaglutide,2021,Actual,3313160.0
 Trulicity,Dulaglutide,2022,Actual,4174280.0
 Trulicity,Dulaglutide,2023,Actual,4851616.0
 Trulicity,Dulaglutide,2024,Actual,3816376.0
+Trulicity,Dulaglutide,2024,Base,3816376.0
+Trulicity,Dulaglutide,2024,High,3816376.0
+Trulicity,Dulaglutide,2024,Low,3816376.0
+Trulicity,Dulaglutide,2025,Base,3002035.9759255475
+Trulicity,Dulaglutide,2025,High,3383673.575925547
+Trulicity,Dulaglutide,2025,Low,2620398.375925547
 Victoza,Liraglutide,2020,Actual,951951.0
 Victoza,Liraglutide,2021,Actual,750962.0
 Victoza,Liraglutide,2022,Actual,569902.0
 Victoza,Liraglutide,2023,Actual,425747.0
 Victoza,Liraglutide,2024,Actual,71722.0
+Victoza,Liraglutide,2024,Base,71722.0
+Victoza,Liraglutide,2024,High,71722.0
+Victoza,Liraglutide,2024,Low,71722.0
+Victoza,Liraglutide,2025,Base,14581.021094687689
+Victoza,Liraglutide,2025,High,21753.221094687684
+Victoza,Liraglutide,2025,Low,7408.821094687688
 Wegovy,Semaglutide,2023,Actual,26.0
 Wegovy,Semaglutide,2024,Actual,76176.0
-Zepbound,Tirzepatide,2024,Actual,14.0
-Ozempic,Semaglutide,2025,Low,14110031.984652534
-Mounjaro,Tirzepatide,2025,Low,7398708.93733341
-Trulicity,Dulaglutide,2025,Low,2620398.375925547
-Rybelsus,Semaglutide,2025,Low,1278371.9521344402
-Wegovy,Semaglutide,2025,Low,108236.99997531757
-Bydureon Bcise,Exenatide,2025,Low,56894.08099558935
-Victoza,Liraglutide,2025,Low,7408.821094687688
-Generic Liraglutide,Liraglutide,2025,Low,1532.1328807954014
-Byetta,Exenatide,2025,Low,1242.185214900189
-Zepbound,Tirzepatide,2025,Low,22.06266658998788
-Ozempic,Semaglutide,2025,Base,15103080.384652533
-Mounjaro,Tirzepatide,2025,Base,7868198.537333411
-Trulicity,Dulaglutide,2025,Base,3002035.9759255475
-Rybelsus,Semaglutide,2025,Base,1368342.35213444
+Wegovy,Semaglutide,2024,Base,76176.0
+Wegovy,Semaglutide,2024,High,76176.0
+Wegovy,Semaglutide,2024,Low,76176.0
 Wegovy,Semaglutide,2025,Base,115854.59997531754
-Bydureon Bcise,Exenatide,2025,Base,65436.08099558935
-Victoza,Liraglutide,2025,Base,14581.021094687689
-Generic Liraglutide,Liraglutide,2025,Base,3015.3328807954017
-Byetta,Exenatide,2025,Base,1428.685214900189
-Zepbound,Tirzepatide,2025,Base,23.462666589987883
-Ozempic,Semaglutide,2025,High,16096128.784652531
-Mounjaro,Tirzepatide,2025,High,8337688.13733341
-Trulicity,Dulaglutide,2025,High,3383673.575925547
-Rybelsus,Semaglutide,2025,High,1458312.75213444
 Wegovy,Semaglutide,2025,High,123472.19997531752
-Bydureon Bcise,Exenatide,2025,High,73978.08099558935
-Victoza,Liraglutide,2025,High,21753.221094687684
-Generic Liraglutide,Liraglutide,2025,High,4498.532880795401
-Byetta,Exenatide,2025,High,1615.185214900189
+Wegovy,Semaglutide,2025,Low,108236.99997531757
+Zepbound,Tirzepatide,2024,Actual,14.0
+Zepbound,Tirzepatide,2024,Base,14.0
+Zepbound,Tirzepatide,2024,High,14.0
+Zepbound,Tirzepatide,2024,Low,14.0
+Zepbound,Tirzepatide,2025,Base,23.462666589987883
 Zepbound,Tirzepatide,2025,High,24.86266658998788
+Zepbound,Tirzepatide,2025,Low,22.06266658998788
